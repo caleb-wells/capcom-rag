@@ -1,0 +1,4 @@
+certifi
+fastembed>=0.7
+numpy>=1.26
+pytest>=8
