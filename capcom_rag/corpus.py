@@ -1,7 +1,7 @@
 """Fetch and parse the Apollo 11 air-to-ground transcript.
 
-The transcript is a NASA work in the public domain. We use the cleaned-up
-plain-text edition maintained by the Spacelog project, pinned to one commit
+The transcript is a NASA work in the public domain. We use the plain-text
+edition maintained by the Spacelog project, pinned to one commit
 and verified by checksum so that the eval numbers are reproducible.
 """
 
@@ -49,7 +49,8 @@ def fetch(path: Path = DEFAULT_PATH) -> Path:
     """Download the transcript if it is missing, and verify its checksum."""
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        # certifi's CA bundle: python.org builds on macOS ship without one.
+        # Use certifi's CA bundle: the python.org build on macOS that this was
+        # developed on failed certificate verification with the default one.
         context = ssl.create_default_context(cafile=certifi.where())
         with urllib.request.urlopen(SOURCE_URL, timeout=60, context=context) as response:
             path.write_bytes(response.read())

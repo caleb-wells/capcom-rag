@@ -3,8 +3,8 @@
 BM25 scores a document by summing, over the query's terms, how rare the term
 is in the corpus (IDF) times how often it appears in the document, with two
 corrections: term frequency saturates (k1), and long documents are penalised
-(b). It is the right tool for exact tokens like "1202" or "P64" that an
-embedding model tends to blur.
+(b). It matches exact tokens like "1202" or "P64", which embedding search
+did worse on in this project's evaluation.
 """
 
 from __future__ import annotations

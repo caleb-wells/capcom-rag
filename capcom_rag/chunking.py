@@ -3,7 +3,8 @@
 A single utterance ("Roger.") means nothing on its own, so the unit of
 retrieval is a short stretch of conversation. Three rules shape a chunk:
 
-1. A word budget keeps chunks small enough to embed well and cheap to prompt.
+1. A word budget keeps chunks short. 160 words did better than 100 on the
+   eval set; larger sizes were not tried.
 2. A long silence ends the chunk early, because radio silence is the
    transcript's natural topic boundary.
 3. Consecutive chunks share a few utterances, so an exchange that straddles a
@@ -17,10 +18,10 @@ from dataclasses import dataclass
 from .corpus import Utterance
 
 # The transcript identifies speakers by role and call sign. People ask about
-# "Armstrong" and "the moonwalk", which appear nowhere in the text, so the
-# searchable copy of each chunk swaps in names and opens with one line of
-# context. The first version spelled the full description out on every line,
-# and the boilerplate drowned the terse dialogue; see the README.
+# "Armstrong", a name that appears once in the whole transcript, so the
+# searchable copy of each chunk swaps in surnames and opens with one line of
+# context. The first version spelled the full description out on every line
+# and scored worse on the eval set; see the README.
 NAMES = {"CDR": "Armstrong", "CMP": "Collins", "LMP": "Aldrin", "CC": "Houston"}
 ROLES = {
     "CDR": "Armstrong is the commander",
@@ -63,7 +64,7 @@ class Chunk:
     end_seconds: int
     timestamps: tuple[str, ...]  # every utterance timestamp, for citation checks
     display: str  # timestamped lines, shown to the reader and the LLM
-    search_text: str  # the same lines without timestamps, for the indexes
+    search_text: str  # enriched lines without timestamps, for the indexes
 
 
 def chunk_utterances(

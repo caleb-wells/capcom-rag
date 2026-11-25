@@ -11,11 +11,11 @@ fenced in on three sides:
 
 A fourth fence was planned and removed: refusing up front when the best
 passage's similarity fell below a floor. On this corpus the scores of
-unanswerable questions overlap those of answerable ones almost completely
-(see the README), so any floor either did nothing or refused good questions.
+unanswerable questions fall inside the range of answerable ones (see the
+README), so no floor could refuse one group without refusing the other.
 
-Generation talks to any OpenAI-compatible chat endpoint (LM Studio, Ollama,
-llama.cpp, vLLM) using only the standard library. If no endpoint is
+Generation talks to an OpenAI-compatible chat endpoint using only the
+standard library. It was tested with LM Studio only. If no endpoint is
 reachable, the answer falls back to the retrieved passages themselves.
 """
 
@@ -74,8 +74,9 @@ class LLMUnavailable(Exception):
 
 
 def build_messages(question: str, hits: list[Hit]) -> list[dict]:
-    # Passages go in mission order, not rank order: a conversation is easier
-    # to follow chronologically, for a model as much as for a person.
+    # Passages go in mission order, not rank order, so the dialogue reads
+    # chronologically. This was a design choice; the alternative was not
+    # measured.
     ordered = sorted(hits, key=lambda hit: hit.chunk.start_seconds)
     excerpts = "\n\n".join(
         f"<excerpt>\n{hit.chunk.display}\n</excerpt>" for hit in ordered

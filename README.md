@@ -1,8 +1,8 @@
 # capcom-rag
 
-Ask questions about the Apollo 11 mission and get answers grounded in the
-actual air-to-ground radio transcript, with a citation for every claim.
-Everything runs on your own machine using open-weight models.
+Ask questions about the Apollo 11 mission and get answers drawn from the
+actual air-to-ground radio transcript, with timestamp citations that the code
+checks. The models are open-weight and run on your own machine.
 
 ```
 $ python -m capcom_rag ask "What is written on the plaque on the landing gear?"
@@ -21,25 +21,27 @@ $ python -m capcom_rag ask "What did the crew say moon dust smelled like inside 
 The transcript does not answer this.
 ```
 
-In mission control, CAPCOM (the capsule communicator) was the one person who
-spoke to the crew, relaying what the rest of the room knew. This project does
+In mission control, CAPCOM (the capsule communicator) was normally the only
+person who spoke to the crew, relaying what the rest of the room knew. This project does
 the same job in reverse: it relays what the transcript says, and nothing else.
 
 ## What this is
 
 A small retrieval-augmented generation (RAG) system in about 800 lines of
-Python, built without a RAG framework, as a worked example of how RAG works and of the
-judgement calls that decide whether it works well.
+Python, built without a RAG framework, as a worked example of how RAG works
+and of the judgement calls that decide whether it works well.
 
 It aims to do three things:
 
 1. **Show every stage in plain code.** There is no LangChain, no LlamaIndex
-   and no vector database. Parsing, chunking, keyword search, vector search,
-   rank fusion, reranking, prompting and citation checking are each a short
-   file you can read top to bottom.
-2. **Give answers you can check.** Every answer cites mission timestamps, and
-   the code verifies each citation against the passages the model was shown.
-   When the transcript does not contain the answer, the system says so.
+   and no vector database: the embeddings live in a NumPy array and are
+   searched by brute force. Parsing, chunking, keyword search, vector search,
+   rank fusion, reranking, prompting and citation checking sit in eight short
+   files you can read top to bottom.
+2. **Give answers you can check.** The model is told to cite a mission
+   timestamp for each claim, and the code verifies each citation against the
+   passages the model was shown. When the passages do not contain the answer,
+   the model is told to say so.
 3. **Measure itself.** A purpose-built evaluation set produces the numbers in
    this README, including the ones that are not flattering.
 
@@ -48,7 +50,7 @@ It aims to do three things:
 ```
                         INDEXING (once)
   transcript ──> parse ──> chunk ──> enrich ──┬──> BM25 keyword index
-  8,482 lines             1,327 chunks        └──> embeddings (BGE-small)
+  8,482 utterances        1,327 chunks        └──> embeddings (BGE-small)
 
                         ANSWERING (per question)
                  ┌──> BM25 top 30 ────┐
@@ -61,18 +63,21 @@ It aims to do three things:
 | Stage | File | What it does, and why |
 |---|---|---|
 | Parse | `capcom_rag/corpus.py` | Downloads the transcript at a pinned commit, verifies its checksum, and turns it into utterances: timestamp, speaker, text. |
-| Chunk | `capcom_rag/chunking.py` | Groups utterances into roughly 160-word stretches of conversation. A lone "Roger." means nothing, so the unit of retrieval is an exchange. A silence of five minutes ends a chunk early, because radio silence is the transcript's natural topic break. Neighbouring chunks share two utterances so an exchange cut by a boundary survives intact in one of them. |
-| Enrich | `capcom_rag/chunking.py` | The transcript says `CDR (EVA)`. People ask about "Armstrong" and "the moonwalk". The searchable copy of each chunk swaps in names and opens with one line of context. The copy shown to the reader and the model stays verbatim. |
-| Keyword search | `capcom_rag/bm25.py` | BM25, implemented here in about 40 lines. It is the right tool for exact tokens such as "1202" or "P64". |
-| Vector search | `capcom_rag/embed.py` | `BAAI/bge-small-en-v1.5` embeddings, searched by brute-force cosine similarity in NumPy. With 1,327 chunks, a vector database would be machinery for its own sake. |
+| Chunk | `capcom_rag/chunking.py` | Groups utterances into stretches of conversation of up to about 160 words. A lone "Roger." means nothing, so the unit of retrieval is an exchange. A silence of five minutes ends a chunk early, because radio silence is the transcript's natural topic break. Neighbouring chunks share two utterances so an exchange cut by a boundary survives intact in one of them. |
+| Enrich | `capcom_rag/chunking.py` | The transcript says `CDR (EVA)`. People ask about "Armstrong", a name that appears once in the whole transcript. The searchable copy of each chunk swaps in surnames and opens with one line of context, such as "Armstrong is the commander, walking on the lunar surface". The copy shown to the reader and the model stays verbatim. |
+| Keyword search | `capcom_rag/bm25.py` | BM25, implemented here in under 60 lines. It suits exact tokens such as "1202" or "P64". |
+| Vector search | `capcom_rag/embed.py`, `capcom_rag/retrieve.py` | `BAAI/bge-small-en-v1.5` embeddings, searched by brute-force cosine similarity in NumPy. With 1,327 chunks there is nothing for a vector database to speed up. |
 | Fuse | `capcom_rag/retrieve.py` | Reciprocal rank fusion merges the two rankings using ranks alone, so BM25 scores and cosine similarities never need to be put on a common scale. |
-| Rerank | `capcom_rag/retrieve.py` | A cross-encoder (`ms-marco-MiniLM-L-6-v2`) reads the question together with each of the 30 fused candidates and reorders them. It is too slow to run on everything and accurate enough to be worth running on a shortlist. |
+| Rerank | `capcom_rag/retrieve.py` | A cross-encoder (`ms-marco-MiniLM-L-6-v2`) reads the question together with each of the top 30 fused candidates and reorders them. Scoring every chunk this way for every question would be far more work, so it only sees a shortlist. The results table shows what it buys. |
 | Generate | `capcom_rag/generate.py` | The top 5 chunks go to a local open-weight model in mission order. The prompt allows only the excerpts as a source, requires a timestamp citation per claim, and gives the model an exact sentence to use when the answer is not there. |
 | Verify | `capcom_rag/generate.py` | Code extracts every cited timestamp and checks it is a real line in a passage the model was given. A citation that fails is flagged to the reader, and so is an answer with no verifiable citation at all. |
 
 ### The models
 
-All three are open-weight and run locally. Nothing is sent to a hosted API.
+All three are open-weight and run locally. Questions and answers are not sent
+to any hosted API. The network is used only for one-time downloads: the
+transcript from GitHub, and the embedding and reranking models from Hugging
+Face on first use.
 
 | Job | Model | Runs in |
 |---|---|---|
@@ -81,8 +86,9 @@ All three are open-weight and run locally. Nothing is sent to a hosted API.
 | Answers | Qwen (`qwen3.6-35b-a3b-mlx` during development) | LM Studio's local server |
 
 The answer step speaks the OpenAI-compatible chat API using only the Python
-standard library, so it works unchanged with LM Studio, Ollama, llama.cpp or
-vLLM, and with whichever open model you have loaded.
+standard library. It was tested only with LM Studio and this one Qwen model.
+Other servers that offer the same API (Ollama, llama.cpp, vLLM) and other
+models should work, but have not been tried.
 
 ## Quickstart
 
@@ -94,7 +100,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 
 .venv/bin/python -m capcom_rag fetch     # download the transcript (0.9 MB)
-.venv/bin/python -m capcom_rag index     # chunk and embed, about 2 minutes on CPU
+.venv/bin/python -m capcom_rag index     # chunk and embed, about 2 minutes on the M3 Max
 .venv/bin/python -m capcom_rag ask "What is written on the plaque on the landing gear?"
 ```
 
@@ -126,15 +132,17 @@ the server lists).
 
 ## Results
 
-The evaluation set (`eval/questions.json`) has 40 questions, written for this project by Claude
-and checked against the transcript:
+The evaluation set (`eval/questions.json`) has 40 questions, written for this
+project by Claude. Each answer timestamp was checked to exist in the
+transcript, and the topics of the unanswerable questions were searched for
+and not found.
 
 - 14 **lexical** questions that share distinctive words with the answer
   ("What happened to Thor Heyerdahl's papyrus boat?").
 - 18 **paraphrase** questions that do not ("How did mission control react
   right after the landing was confirmed?" for the line "You got a bunch of
   guys about to turn blue. We're breathing again.").
-- 8 **unanswerable** questions about things the transcript never mentions.
+- 8 **unanswerable** questions about things the transcript does not cover.
 
 Each answerable question lists the transcript timestamps that contain its
 answer. A retrieved chunk counts as a hit if it includes one of them.
@@ -160,15 +168,16 @@ What the table says:
 - **Reranking improves the top of the list.** Recall@1 goes from 0.41 to 0.50
   and recall@10 from 0.72 to 0.78. It restores lexical recall@5 to 1.00 but
   costs a little on paraphrases (0.44 to 0.39).
-- **Keyword-style questions are solved; paraphrases are not.** This corpus is
-  hard on embeddings: terse radio calls, jargon and numbers, with the famous
-  lines buried among checklist readouts. A question like "What was said when
-  the capsule hit the water?" has no surface or semantic overlap with the
-  answer, "Splashdown!", inside a chunk of recovery chatter.
+- **Keyword-style questions work; paraphrases mostly do not.** All 14 lexical
+  questions have a correct chunk in the top 5, against 7 of 18 paraphrases.
+  The text is terse radio calls, jargon and numbers. A question like "What
+  was said at the very end, when the capsule hit the water?" shares no
+  distinctive word with its answer, "Splashdown!".
 
-Thirty-two questions is a small set. One question moves a recall figure by
-three points, and the settings below were tuned against the same set, with no
-held-out split. Treat the figures as directional.
+Thirty-two questions is a small set. One question moves an overall recall
+figure by three points, and the lexical and paraphrase columns by seven and
+six. The settings below were tuned against the same set, with no held-out
+split. Treat the figures as directional.
 
 ### Answers
 
@@ -186,47 +195,52 @@ perfectly repeatable. Every answer is in `eval/results.json`.
 
 Reproduce with `python -m capcom_rag eval` while a model server is running.
 
-Reading all 25 answers in full: 22 are correct. One of those names the right
-ship from a passage the answer key did not list, which is a gap in the key,
-not in the answer. The other 3 are wrong. A script also checked the quoted
-text in the answers against the transcript and found every quotation
-verbatim.
+Claude read all 25 answers against the transcript; no one else has reviewed
+them. On that reading, 22 answer the question correctly and 3 do not. One of
+the 22 names the right ship from a passage the answer key did not list, which
+is a gap in the key. At least one of the 22 (the seismometer question) gets
+the answer right and then pads it with quotes from neighbouring lines that
+are about other equipment. A one-off script, not in this repository, looked
+for each quoted span of four or more words in the transcript, ignoring case
+and punctuation, and found all of them.
 
-- **The model never invented a citation and never answered an unanswerable
-  question.** That is the behaviour the prompt and the citation check exist
-  to produce.
+- **In this run the model did not invent a citation or answer an
+  unanswerable question.** That is the behaviour the prompt and the citation
+  check exist to produce.
 - **All 7 declined questions are retrieval misses.** The right passage was
-  not in the top 5, and the model said so instead of guessing. For this kind
-  of system that is the right way to fail.
-- **The 3 wrong answers are the instructive ones.** Each quotes a real line,
-  cites it correctly, and does not answer the question. Asked how Aldrin
-  described the landscape in two words, the model was shown a nearby passage
-  without "Magnificent desolation" and offered "powdery surface". The
-  citation check passes these, because the quote is genuine. Catching them
-  takes better retrieval or a second model judging whether the cited line
-  supports the claim.
+  not in the top 5, and the model declined instead of guessing.
+- **The 3 that miss are the instructive ones.** Each quotes a real line and
+  cites it correctly, but the line does not answer the question. Asked how
+  Aldrin described the landscape in two words, the model was not shown
+  "Magnificent desolation" and offered "powdery surface" from a line four
+  minutes later. One of the three goes on to say the excerpts do not cover
+  the question. The citation check passes all of these, because the quotes
+  are genuine. Catching them would take better retrieval or a second model
+  judging whether the cited line supports the claim.
 
-So in this run the quality of the answers was bounded by retrieval: all 21
-questions whose answer was retrieved in the top 5 were answered correctly,
-and every decline and every wrong answer traces back to a retrieval miss.
+So in this run the answers were limited by retrieval: all 21 questions whose
+answer was retrieved in the top 5 were answered correctly on Claude's
+reading, and every decline and every miss was a question whose answer was
+not retrieved.
 
-## What I tried, and what it taught me
+## What was tried
 
 **A retrieval-score floor for refusing questions. Removed.** The plan was to
 decline before calling the model whenever the best passage's similarity was
 low. Measured, the best-passage similarity ran from 0.54 to 0.79 for
 answerable questions and from 0.62 to 0.76 for unanswerable ones; 28 of the
-32 answerable questions scored below the highest unanswerable one. Even
-plainly off-topic questions ("How do I bake sourdough bread?") scored 0.49 to
-0.56, at or just under the bottom of the answerable range, so a floor low
-enough to keep every good question would stop almost nothing. No threshold
-separates them, so refusal is
-left to the model and the citation check. A question about moon dust is
+32 answerable questions scored below the highest unanswerable one. Three
+plainly off-topic test questions ("How do I bake sourdough bread?") scored
+0.49, 0.55 and 0.56, straddling the bottom of the answerable range. A floor
+set just low enough to keep every answerable question would have stopped one
+of those three and none of the eight unanswerable ones. So the floor was
+removed, and declining is left to the model. A question about moon dust is
 *near* plenty of transcript; whether the transcript *answers* it is a reading
 task, not a distance.
 
 **Speaker enrichment. Kept, with a cost.** Compared with indexing the raw
-labels (`CDR (EVA): ...`), the enriched index does better where it counts:
+labels (`CDR (EVA): ...`), the enriched index does better on the fused
+results and worse on dense search alone:
 
 | Index | hybrid Recall@5 | hybrid paraphrase Recall@5 | hybrid+rerank Recall@5 | hybrid+rerank Recall@10 | dense Recall@5 |
 |---|---|---|---|---|---|
@@ -234,13 +248,16 @@ labels (`CDR (EVA): ...`), the enriched index does better where it counts:
 | enriched (current) | 0.66 | 0.44 | 0.66 | 0.78 | 0.41 |
 
 The last column is the cost. Dense search on its own got worse, and the
-current version did not recover it. My best explanation, which I have not
-tested, is that the shared names and context sentence make chunks from the
-same phase of the mission look more alike to the embedding model. Keyword search gains more than dense search loses, so the fused result
-improves. An earlier version spelled the full description out on every line
-("Aldrin, lunar module pilot, aboard the lunar module Eagle: Yes."), which in
-chunks of two-word radio calls made boilerplate most of the text; in a
-development run it reached reranked recall@10 of 0.69 against 0.78 now. That
+current version did not recover it. One explanation, not tested, is that the
+shared names and context sentence make chunks from the same phase of the
+mission look more alike to the embedding model. Keyword search improved at
+the top of its ranking (BM25 recall@1 went from 0.38 to 0.50), and the fused
+results improved.
+
+An earlier version spelled the full description out on every line ("Aldrin,
+lunar module pilot, aboard the lunar module Eagle: Yes."), so in chunks of
+short radio calls the labels were longer than the dialogue. In a development
+run it reached reranked recall@10 of 0.69 against 0.78 now. That
 version is no longer in the code, so that one figure cannot be reproduced
 from this tree.
 
@@ -263,12 +280,14 @@ might sound like, then searches with the draft as well as the question.
 
 Paraphrase recall@5 rises from 0.44 to 0.67. It is left out of the main
 pipeline for three reasons. It adds a model call of roughly 30 seconds per
-question with a local reasoning model. Much of the gain comes from the model
-already knowing Apollo 11's famous lines, which would not carry over to a
-private corpus. And reranking against the original question undoes most of
-the benefit, which suggests the cross-encoder, not recall, is the next thing
-to fix. The drafts are cached in the repo, so the table reproduces without a
-language model.
+question with this local reasoning model. Several drafts reproduce famous
+lines word for word, so some of the gain is the model's prior knowledge of
+Apollo 11, which would not carry over to a private corpus; how much was not
+measured. And reranking against the original question takes the paraphrase
+figure back to 0.44. Three of the 32 drafts came back empty; the likely cause,
+not confirmed, is the model spending its whole token budget on reasoning. The
+drafts are cached in the
+repo, so the table reproduces without a language model.
 
 ## Limitations
 
@@ -276,10 +295,16 @@ language model.
   catches invented and misremembered timestamps. It cannot tell whether the
   cited line supports the claim; that needs a human or a judge model.
 - **Paraphrased questions often miss**, as measured above.
-- **Long utterances are truncated for embedding.** A few news readouts exceed
+- **Long chunks are truncated for embedding.** 11 of the 1,327 chunks exceed
   the embedding model's 512-token window. BM25 still sees the full text.
-- **One mission, one transcript.** The parser is specific to this format. The
-  chunker, retrievers, fusion, generation and evaluation are not.
+- **Queries are embedded without an instruction prefix.** BGE models document
+  a short instruction to prepend to search queries. The library call used
+  here does not add it, and adding it was not tried.
+- **Built for one transcript.** BM25, vector search, fusion and reranking are
+  general. The parser, the speaker enrichment, the prompt and the evaluation
+  questions are specific to Apollo 11.
+- **Tested in one setup:** one machine, one Python version, one model server
+  and one answer model.
 
 ## Project layout
 
@@ -301,27 +326,34 @@ docs/design.md                   the design, written before the code
 
 ## How this was built
 
-This project was built in a working session with
-[Claude Code](https://claude.com/claude-code). I set the direction and made
-the decisions; Claude wrote the code and ran the experiments.
+This project was built over two days of working sessions between the
+repository owner and [Claude Code](https://claude.com/claude-code). This
+section, like the rest of the README, was written by Claude.
 
-My calls: the Apollo 11 transcript as the corpus, an open-weight model running
-locally instead of a hosted API, a command line as the only interface, and
-the name. Claude proposed building the pipeline from first principles instead of on
-a framework, wrote that approach up in [`docs/design.md`](docs/design.md)
-before any code existed, and I approved it. That document is unchanged in substance, so it
-also records where the build departed from the plan: the refusal floor it
-describes was measured and removed, and the enrichment step is not in it at
-all because the first evaluation run is what showed the need.
+- **The owner** set the direction, chose the Apollo 11 transcript as the
+  corpus and a command line as the only interface (each from options Claude
+  offered), asked for an open-weight model running locally instead of a
+  hosted API, chose the name, and approved the design before any code was
+  written.
+- **Claude** proposed building the pipeline without a framework, wrote the
+  design in [`docs/design.md`](docs/design.md), made the implementation
+  decisions, wrote all of the code, the tests and the evaluation questions,
+  and ran the experiments.
 
-The practice I would point to is the evaluation loop. The retrieval numbers
-were poor on the first run, and each change after that was kept or dropped on
-what the eval set showed, including two ideas that sounded right and were not.
+The design document is unchanged in substance, so it also records where the
+build departed from the plan: the refusal floor it describes was measured and
+removed, and the enrichment step is not in it at all, because it was added
+after the first evaluation run.
+
+After that first run, each change was kept or dropped according to what the
+evaluation set showed.
 
 ## Data and credits
 
 The transcript is the *Apollo 11 Technical Air-to-Ground Voice Transcription*,
-a NASA work in the public domain. This project downloads the cleaned
-plain-text edition maintained by the [Spacelog](https://github.com/Spacelog/Spacelog)
-project, pinned to a specific commit. The transcript is not stored in this
-repository.
+a NASA work in the public domain. This project downloads the plain-text
+edition maintained by the [Spacelog](https://github.com/Spacelog/Spacelog)
+project, pinned to a specific commit. Spacelog's repository does not state a
+licence for its mission files. The full transcript is not stored in this
+repository; `eval/results.json` and the cached drafts contain short
+quotations from it.

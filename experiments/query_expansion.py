@@ -1,7 +1,7 @@
 """Experiment: does searching with a model-drafted excerpt find more answers?
 
 The hard questions in the eval set are paraphrases: "What did Armstrong report
-the moment the lunar module was down?" shares no words with "The Eagle has
+the moment the lunar module was down?" shares no distinctive word with "The Eagle has
 landed." This is the HyDE idea (hypothetical document embeddings): ask a
 language model to draft what the answer might look like, then search with the
 draft as well as the question.
