@@ -1,0 +1,572 @@
+{
+  "retrieval": {
+    "bm25": {
+      "all": {
+        "recall@1": 0.5,
+        "recall@5": 0.59375,
+        "recall@10": 0.59375,
+        "mrr": 0.5416666666666666
+      },
+      "lexical": {
+        "recall@1": 0.8571428571428571,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.9166666666666667
+      },
+      "paraphrase": {
+        "recall@1": 0.2222222222222222,
+        "recall@5": 0.2777777777777778,
+        "recall@10": 0.2777777777777778,
+        "mrr": 0.25
+      },
+      "misses": [
+        "What did Armstrong report to Houston the moment the lunar module was down?",
+        "How did mission control react right after the landing was confirmed?",
+        "How did Aldrin describe the lunar landscape in two words?",
+        "What light was the crew asked to look for coming from an observatory in Texas?",
+        "What strange lunar phenomena was the crew asked to watch for from orbit, and near which crater?",
+        "What did Houston tell Aldrin about the state of his lawn at home?",
+        "When was the crew cleared to leave Earth orbit and head for the Moon?",
+        "What did Armstrong say just after the two spacecraft separated in lunar orbit?",
+        "Was the crew told to stay on the surface or abort right after landing?",
+        "What did Collins ask the flight surgeons while he was exercising?",
+        "How much fuel time remained in the last callouts before touchdown?",
+        "What was said at the very end, when the capsule hit the water?",
+        "Which ship did Nixon say he would meet the crew on?"
+      ]
+    },
+    "dense": {
+      "all": {
+        "recall@1": 0.28125,
+        "recall@5": 0.40625,
+        "recall@10": 0.53125,
+        "mrr": 0.3402281746031746
+      },
+      "lexical": {
+        "recall@1": 0.5,
+        "recall@5": 0.5714285714285714,
+        "recall@10": 0.6428571428571429,
+        "mrr": 0.5317460317460317
+      },
+      "paraphrase": {
+        "recall@1": 0.1111111111111111,
+        "recall@5": 0.2777777777777778,
+        "recall@10": 0.4444444444444444,
+        "mrr": 0.19126984126984128
+      },
+      "misses": [
+        "What did Armstrong report to Houston the moment the lunar module was down?",
+        "What was the 1202 program alarm and how did Houston respond?",
+        "How did mission control react right after the landing was confirmed?",
+        "Why did the commander have to fly manually during the final approach?",
+        "What did Jodrell Bank report about the Soviet Luna 15 probe?",
+        "What happened to Thor Heyerdahl's papyrus boat?",
+        "What strange lunar phenomena was the crew asked to watch for from orbit, and near which crater?",
+        "What did Houston tell Aldrin about the state of his lawn at home?",
+        "When was the crew cleared to leave Earth orbit and head for the Moon?",
+        "What did Armstrong say just after the two spacecraft separated in lunar orbit?",
+        "Was the crew told to stay on the surface or abort right after landing?",
+        "How was the passive seismometer deployed?",
+        "How much fuel time remained in the last callouts before touchdown?",
+        "What did Houston tell Collins about the flag being set up?",
+        "What was said at the very end, when the capsule hit the water?"
+      ]
+    },
+    "hybrid": {
+      "all": {
+        "recall@1": 0.40625,
+        "recall@5": 0.65625,
+        "recall@10": 0.71875,
+        "mrr": 0.48151041666666666
+      },
+      "lexical": {
+        "recall@1": 0.5,
+        "recall@5": 0.9285714285714286,
+        "recall@10": 1.0,
+        "mrr": 0.6279761904761905
+      },
+      "paraphrase": {
+        "recall@1": 0.3333333333333333,
+        "recall@5": 0.4444444444444444,
+        "recall@10": 0.5,
+        "mrr": 0.3675925925925926
+      },
+      "misses": [
+        "What did Armstrong report to Houston the moment the lunar module was down?",
+        "How did mission control react right after the landing was confirmed?",
+        "How did Aldrin describe the lunar landscape in two words?",
+        "What strange lunar phenomena was the crew asked to watch for from orbit, and near which crater?",
+        "When was the crew cleared to leave Earth orbit and head for the Moon?",
+        "What did Armstrong say just after the two spacecraft separated in lunar orbit?",
+        "Was the crew told to stay on the surface or abort right after landing?",
+        "How much fuel time remained in the last callouts before touchdown?",
+        "What was said at the very end, when the capsule hit the water?"
+      ]
+    },
+    "hybrid+rerank": {
+      "all": {
+        "recall@1": 0.5,
+        "recall@5": 0.65625,
+        "recall@10": 0.78125,
+        "mrr": 0.5884424603174603
+      },
+      "lexical": {
+        "recall@1": 0.8571428571428571,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.9166666666666667
+      },
+      "paraphrase": {
+        "recall@1": 0.2222222222222222,
+        "recall@5": 0.3888888888888889,
+        "recall@10": 0.6111111111111112,
+        "mrr": 0.3331569664902998
+      },
+      "misses": [
+        "What did Armstrong report to Houston the moment the lunar module was down?",
+        "How did mission control react right after the landing was confirmed?",
+        "What strange lunar phenomena was the crew asked to watch for from orbit, and near which crater?",
+        "When was the crew cleared to leave Earth orbit and head for the Moon?",
+        "What did Armstrong say just after the two spacecraft separated in lunar orbit?",
+        "How much fuel time remained in the last callouts before touchdown?",
+        "What was said at the very end, when the capsule hit the water?"
+      ]
+    }
+  },
+  "generation": {
+    "answerable": 32,
+    "answered": 25,
+    "answered_citing_gold": 21,
+    "answered_without_citation": 0,
+    "unanswerable": 8,
+    "correctly_refused": 8,
+    "citations": 39,
+    "invalid_citations": 0,
+    "rows": [
+      {
+        "q": "What did Armstrong report to Houston the moment the lunar module was down?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:13:23:38"
+        ],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "Upon landing, Armstrong reported that \"The LM footpads are only depressed in the surface about 1 or 2 inches, although the surface appears to be very, very fine grained, as you get close to it. It's almost like a powder. Down there, it's very fine\" [04:13:23:38]."
+      },
+      {
+        "q": "What was the 1202 program alarm and how did Houston respond?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:06:38:30",
+          "04:06:38:53"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "Based on the provided transcript, the crew simply reported \u201cIt's a 1202\u201d as a program alarm [04:06:38:30]. Houston responded by confirming they copied it and stated, \u201cWe're GO on that alarm\u201d [04:06:38:53]. The provided excerpts do not explain the technical nature or cause of the 1202 alarm itself."
+      },
+      {
+        "q": "How did mission control react right after the landing was confirmed?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What were the first words spoken when a crew member stepped off the ladder onto the Moon?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:13:24:48"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, when Neil Armstrong stepped off the lunar module onto the surface, he said: \"That's one small step for man, one giant leap for mankind\" [04:13:24:48]."
+      },
+      {
+        "q": "How did Aldrin describe the lunar landscape in two words?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:13:47:52"
+        ],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "Aldrin described the lunar landscape as a \"powdery surface\" [04:13:47:52]."
+      },
+      {
+        "q": "What is written on the plaque on the landing gear?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:13:52:40"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, the plaque reads: \"Here Man from the planet Earth first set foot upon the Moon, July 1969 A.D. We came in peace for all mankind\" [04:13:52:40]. It also features \"the crew members' signatures and the signature of the President of the United States\" [04:13:52:40]."
+      },
+      {
+        "q": "What did President Nixon say to the astronauts while they were on the surface?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:14:16:30",
+          "04:14:18:12"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "President Nixon told the astronauts: \"Neil and Buzz, I am talking to you by telephone from the Oval Room at the White House, and this certainly has to be the most historic telephone call ever made. I just can't tell you how proud we all are of what you *** for every American. This has to be the proudest day of our lives. And for people all over the world, I am sure they, too, join with Americans in recognizing what an immense feat this is. Because of what you have done, the heavens have become a part of man's world. And as you talk to us from the Sea of Tranquility, it inspires us to redouble our efforts to bring peace and tranquility to Earth. For one priceless moment in the whole history of man, all the people on this Earth are truly one; one in their pride in what you have done, and one in our prayers that you will return safely to Earth\" [04:14:16:30]. He also added, \"And thank you very much and I look forward - All of us look forward to seeing you on the Hornet on Thursday\" [04:14:18:12]."
+      },
+      {
+        "q": "Why did the commander have to fly manually during the final approach?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:06:55:16"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "The commander had to fly manually because the AUTO targeting was taking them directly into a \"football field sized crater, with a large number of big boulders and rocks\" [04:06:55:16]. This required him to fly manually over the rock field \"to find a reasonably good area\" [04:06:55:16]."
+      },
+      {
+        "q": "What did the lunar soil look and feel like under Armstrong's boots?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:13:24:48",
+          "04:14:04:43"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, Armstrong described the surface as \"fine and powdery,\" noting that he could \"pick it up loosely with my toe\" [04:13:24:48]. He observed that it \"adhere[s] in fine layers like powdered charcoal to the sole and sides of my boots\" [04:13:24:48], sinking only \"a small fraction of an inch, maybe an eighth of an inch\" [04:13:24:48]. He also noted that the soil is \"very cohesive\" and can \"retain a slope of probably 70 degrees along side of the footprints\" [04:14:04:43]."
+      },
+      {
+        "q": "What did Jodrell Bank report about the Soviet Luna 15 probe?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "00:23:14:23",
+          "06:04:23:13"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, Jodrell Bank initially reported that Luna 15 \"had gone beyond the Moon\" and a spokesman stated, \"We don't think it has landed\" [00:23:14:23]. Later, Sir Bernard Lovell at Jodrell Bank Observatory reported that \"Luna 15 hit the surface of the Moon at a speed of about 300 miles per hour\" [06:04:23:13]."
+      },
+      {
+        "q": "What happened to Thor Heyerdahl's papyrus boat?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "02:05:55:03",
+          "05:12:18:52"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, Thor Heyerdahl's papyrus boat suffered damage from heavy seas and storms that split the footing of its mast, so \"part of the broken mast was jettisoned overboard\" while the crew repaired it and slept on an escort vessel [02:05:55:03]. Later, \"Thor Heyerdahl had to give up his attempt to sail a papyrus boat across the Atlantic\" because the storm-damaged craft's speed was reduced to about 25 miles a day, and it was ultimately \"abandoned about 650 miles from Bermuda\" [05:12:18:52]."
+      },
+      {
+        "q": "Who did Collins want to enter in the oatmeal eating contest?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "02:05:57:55"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "Collins wanted to enter Aldrin, stating, \"I'd like to enter Aldrin in the oatmeal eating contest next time\" [02:05:57:55]."
+      },
+      {
+        "q": "What light was the crew asked to look for coming from an observatory in Texas?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "01:11:28:08"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "The crew was asked to look for a \"blue-green laser\" coming from McDonald Observatory in West Texas [01:11:28:08]. Houston instructed them to watch for it flashing on and off, stating, \"It's a blue-green laser that we're going to flash on and off at a frequency of on for a second, off for a second\" [01:11:28:08]."
+      },
+      {
+        "q": "What strange lunar phenomena was the crew asked to watch for from orbit, and near which crater?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did Houston tell Aldrin about the state of his lawn at home?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "07:05:47:51"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "Houston told Aldrin that \"Janis reports the grass is getting pretty high, and I would estimate that it's going to be close to your knees by the time you get out of quarantine\" [07:05:47:51]."
+      },
+      {
+        "q": "How warm was the coffee the crew made?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "01:03:31:17"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, the coffee was \"pretty good\" but \"not piping hot,\" though it still \"sure beats stone-cold coffee\" [01:03:31:17]."
+      },
+      {
+        "q": "When was the crew cleared to leave Earth orbit and head for the Moon?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did Armstrong say just after the two spacecraft separated in lunar orbit?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "Was the crew told to stay on the surface or abort right after landing?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "02:11:34:33"
+        ],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "According to the transcript, Houston instructed that after passing \"low gate,\" they should continue on and attempt a landing rather than abort: \"After low gate we would continue on. We would recommend that we continue on to attempt a landing.\" [02:11:34:33] The provided excerpts do not mention any instructions regarding staying on the surface or aborting immediately after touchdown."
+      },
+      {
+        "q": "How was the passive seismometer deployed?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:14:55:42",
+          "04:14:56:30",
+          "04:15:15:13",
+          "05:17:17:37"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "The passive seismometer was deployed manually, as the LMP reported that \"the passive seismometer has been deployed manually\" [04:14:55:42]. Because a spring was pulled off, he had to \"reach up and get hold of the picks head and pull it loose\" so that \"it will be deployed manually, also\" [04:14:56:30]. He then drove it into the surface, noting he had to hit it \"to the tune of about 5 inches\" [04:15:15:13]. The CDR later verified its final placement was \"about in the nine or nine thirty position, and I'd say it's about 50 or 60 feet\" from the LM [05:17:17:37]."
+      },
+      {
+        "q": "What did Aldrin say about the footing on the rocks?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:13:47:45",
+          "04:13:47:52",
+          "04:13:48:25",
+          "04:13:49:13"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "Aldrin stated that \"the rocks are rather slippery\" [04:13:47:45]. He described a \"powdery surface when the sun hits\" where they \"Will tend to slide over it rather easily\" [04:13:47:52]. Despite the sliding tendency, he noted that \"Traction *** seems quite good\" [04:13:48:25]. He also advised that you \"Got to be careful that you are leaning in the direction you want to go, otherwise you *** slightly inebriated. In other words, you have to cross your foot over to stay underneath where your center-of-mass is\" [04:13:49:13]."
+      },
+      {
+        "q": "Who was crowned Miss Universe during the mission?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "03:23:18:19"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, \"Gloria Diaz of the Philippines was crowned Miss Universe last night\" [03:23:18:19]."
+      },
+      {
+        "q": "What did a Houston astrologer predict about the trip?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "03:00:34:02"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, a Houston astrologer named Ruby Graham predicted that \"all the signs are right for your trip to the Moon\" [03:00:34:02]. She also provided specific personality assessments for the crew, noting that \"Neil is clever, Mike has good judgment, and Buzz can work out intricate problems\" [03:00:34:02]."
+      },
+      {
+        "q": "What did Collins ask the flight surgeons while he was exercising?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What was the news about Joe Namath and the New York Jets?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "00:23:14:23",
+          "05:12:19:21"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "According to the transcript, Joe Namath \"officially reported to the New York Jets training camp at Hofstra University Wednesday following a closed door meeting with his teammates over his differences with pro football Commissioner Peter Rozelle\" [00:23:14:23]. The capsule communicator also noted that Namath \"had agreed to sell his interest in the Bachelors III restaurant and report to the New York Jets. Joe arrived at the Jets' training camp today and had his first workout\" [05:12:19:21]."
+      },
+      {
+        "q": "What did Collins say about the Saturn V rocket in the television broadcast on the way home?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "07:09:34:44"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "Collins stated that \"The Saturn V rocket which put us into orbit is an incredibly complicated piece of machinery, every piece of which worked flawlessly\" [07:09:34:44]."
+      },
+      {
+        "q": "How much fuel time remained in the last callouts before touchdown?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did Houston tell Collins about the flag being set up?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "04:14:09:05",
+          "04:14:09:43"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "Houston told Collins, \"I believe they are setting up the flag now\" [04:14:09:05]. He later confirmed, \"They've got the flag up now and you can see the stars and stripes on the lunar surface\" [04:14:09:43]."
+      },
+      {
+        "q": "What did President Nixon declare for federal employees on the day of the moonwalk?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "00:23:14:23",
+          "01:09:38:20"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "President Nixon declared a \"day of participation\" on Monday for federal employees, granting them a holiday so they could observe and follow the Apollo 11 Moon landing mission [00:23:14:23]. He also declared this day to \"enable everybody to follow your activities on the surface\" [01:09:38:20]."
+      },
+      {
+        "q": "What breakfast food did Collins show off during the TV tour of the cabin?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "01:10:22:43"
+        ],
+        "invalid_citations": [],
+        "cites_gold": true,
+        "answer": "During the TV tour, Collins showed off \"bacon in little small bites\" [01:10:22:43]. He also pointed out \"coffee up here in the upper left and various breakfast items\" [01:10:22:43]."
+      },
+      {
+        "q": "What was said at the very end, when the capsule hit the water?",
+        "answerable": true,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "Which ship did Nixon say he would meet the crew on?",
+        "answerable": true,
+        "refused": false,
+        "citations": [
+          "06:04:23:13"
+        ],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "According to the transcript, President Nixon will fly by helicopter to the Navy communications ship *Arlington* and then \"fly to the Hornet in time to witness your splashdown\" [06:04:23:13]."
+      },
+      {
+        "q": "What did the crew say moon dust smelled like inside the cabin?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "How many kilograms did the returned rock samples weigh when measured in Houston?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did Houston tell the crew about the Apollo 13 oxygen tank explosion?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "Which song did Aldrin sing while planting the flag?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did the crew discuss about the Space Shuttle program?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did Armstrong say about his salary during the flight?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What did Collins say to the International Space Station crew?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      },
+      {
+        "q": "What was the score of the chess game the crew played against Houston?",
+        "answerable": false,
+        "refused": true,
+        "citations": [],
+        "invalid_citations": [],
+        "cites_gold": false,
+        "answer": "The transcript does not answer this."
+      }
+    ]
+  }
+}
