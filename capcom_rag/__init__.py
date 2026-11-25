@@ -1,1 +1,1 @@
-"""capcom-rag: a small, hand-built RAG pipeline over the Apollo 11 air-to-ground transcript."""
+"""capcom-rag: a small, framework-free RAG pipeline over the Apollo 11 air-to-ground transcript."""

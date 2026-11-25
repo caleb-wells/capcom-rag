@@ -2,7 +2,7 @@
 
 ## Intent
 
-A small retrieval-augmented generation system, built by hand, that answers
+A small retrieval-augmented generation system, built without a RAG framework, that answers
 questions about the Apollo 11 mission from the air-to-ground voice transcript
 and cites the exact moments it relied on. It is a public example of how RAG
 works and of the judgement calls that make it work well. A reviewer should be
@@ -37,10 +37,10 @@ able to read the whole thing in about ten minutes and run it on a fresh clone.
 1. **Framework (LangChain or LlamaIndex) plus a vector database.** Fast to
    stand up, but the interesting decisions are hidden inside library calls,
    and a vector database is far more machinery than 1,500 chunks need.
-2. **Dense retrieval only, hand-built.** Simple and readable, but weak on this
+2. **Dense retrieval only, no framework.** Simple and readable, but weak on this
    corpus: questions often hinge on exact tokens ("1202", "Tranquility Base",
    "P64") that embeddings blur and keyword search nails.
-3. **Hand-built hybrid retrieval with an eval harness. (Chosen.)** BM25 and
+3. **Framework-free hybrid retrieval with an eval harness. (Chosen.)** BM25 and
    dense embeddings, fused with reciprocal rank fusion, then an optional
    cross-encoder rerank. Slightly more code, but each piece is short, and the
    ablation table shows what each piece buys.
@@ -60,7 +60,7 @@ able to read the whole thing in about ten minutes and run it on a fresh clone.
 | Grounding | Prompt requires `[DD:HH:MM:SS]` citations and an explicit "not in the transcript" answer. Code then verifies each cited timestamp falls inside a retrieved chunk | Prompting alone is not a guarantee; the check is. |
 | Refusal | Two layers: a retrieval-score floor, then the model's own refusal | Cheap guard first, model judgement second. |
 | Interface | CLI: `fetch`, `index`, `ask`, `eval` | Smallest thing to review. |
-| Eval | Hand-written questions with gold timestamp ranges verified against the transcript, plus unanswerable questions. Reports recall@k and MRR for BM25, dense, hybrid, and hybrid plus rerank; and, when a model is running, citation validity and refusal accuracy | The ablation is the evidence that the design choices matter. |
+| Eval | Purpose-written questions with gold timestamp ranges verified against the transcript, plus unanswerable questions. Reports recall@k and MRR for BM25, dense, hybrid, and hybrid plus rerank; and, when a model is running, citation validity and refusal accuracy | The ablation is the evidence that the design choices matter. |
 | Tooling | Python 3.11+, `venv` and `pip`, `pytest` | Lowest-friction setup. |
 
 ## Layout

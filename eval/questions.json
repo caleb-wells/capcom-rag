@@ -1,5 +1,5 @@
 {
-  "_about": "Hand-written questions. `gold` lists transcript timestamps that contain the answer; a retrieved chunk counts as relevant if it includes any of them. `kind` is `lexical` when the question shares distinctive words with the answer and `paraphrase` when it does not. `gold: []` marks a question the transcript cannot answer.",
+  "_about": "Questions written for this project by Claude and checked against the transcript. `gold` lists transcript timestamps that contain the answer; a retrieved chunk counts as relevant if it includes any of them. `kind` is `lexical` when the question shares distinctive words with the answer and `paraphrase` when it does not. `gold: []` marks a question the transcript cannot answer.",
   "questions": [
     {"q": "What did Armstrong report to Houston the moment the lunar module was down?", "gold": ["04:06:45:59", "04:06:46:04"], "kind": "paraphrase"},
     {"q": "What was the 1202 program alarm and how did Houston respond?", "gold": ["04:06:38:30", "04:06:38:48", "04:06:38:53"], "kind": "lexical"},

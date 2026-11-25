@@ -27,8 +27,8 @@ the same job in reverse: it relays what the transcript says, and nothing else.
 
 ## What this is
 
-A small retrieval-augmented generation (RAG) system, written by hand in about
-800 lines of Python, as a worked example of how RAG works and of the
+A small retrieval-augmented generation (RAG) system in about 800 lines of
+Python, built without a RAG framework, as a worked example of how RAG works and of the
 judgement calls that decide whether it works well.
 
 It aims to do three things:
@@ -40,7 +40,7 @@ It aims to do three things:
 2. **Give answers you can check.** Every answer cites mission timestamps, and
    the code verifies each citation against the passages the model was shown.
    When the transcript does not contain the answer, the system says so.
-3. **Measure itself.** A hand-written evaluation set produces the numbers in
+3. **Measure itself.** A purpose-built evaluation set produces the numbers in
    this README, including the ones that are not flattering.
 
 ## How it works
@@ -126,7 +126,8 @@ the server lists).
 
 ## Results
 
-The evaluation set (`eval/questions.json`) has 40 hand-written questions:
+The evaluation set (`eval/questions.json`) has 40 questions, written for this project by Claude
+and checked against the transcript:
 
 - 14 **lexical** questions that share distinctive words with the answer
   ("What happened to Thor Heyerdahl's papyrus boat?").
@@ -306,9 +307,9 @@ the decisions; Claude wrote the code and ran the experiments.
 
 My calls: the Apollo 11 transcript as the corpus, an open-weight model running
 locally instead of a hosted API, a command line as the only interface, and
-the name. Claude proposed building the pipeline by hand instead of on a
-framework, wrote that approach up in [`docs/design.md`](docs/design.md)
-before any code existed, and I approved it. That document is unedited apart from the project name, so it
+the name. Claude proposed building the pipeline from first principles instead of on
+a framework, wrote that approach up in [`docs/design.md`](docs/design.md)
+before any code existed, and I approved it. That document is unchanged in substance, so it
 also records where the build departed from the plan: the refusal floor it
 describes was measured and removed, and the enrichment step is not in it at
 all because the first evaluation run is what showed the need.
