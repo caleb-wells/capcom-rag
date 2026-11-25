@@ -5,7 +5,7 @@ import pytest
 
 from capcom_rag import generate
 from capcom_rag.bm25 import BM25
-from capcom_rag.chunking import chunk_utterances, describe_speaker
+from capcom_rag.chunking import chunk_utterances, context_line, speaker_name
 from capcom_rag.corpus import parse, to_seconds
 from capcom_rag.evaluate import first_relevant_rank, retrieval_metrics
 from capcom_rag.retrieve import Hit, reciprocal_rank_fusion
@@ -83,9 +83,17 @@ def test_search_text_is_enriched_but_display_is_verbatim(utterances):
     assert "Armstrong" not in chunk.display
 
 
-def test_describe_speaker_passes_unknown_labels_through():
-    assert describe_speaker("PRESIDENT NIXON") == "PRESIDENT NIXON"
-    assert describe_speaker("LMP (EVA)") == "Aldrin, lunar module pilot, walking on the lunar surface"
+def test_speaker_name_passes_unknown_labels_through():
+    assert speaker_name("PRESIDENT NIXON") == "PRESIDENT NIXON"
+    assert speaker_name("LMP (EVA)") == "Aldrin"
+
+
+def test_context_line_describes_each_speaker_once():
+    line = context_line(["CC", "LMP (EVA)", "CC", "LMP (EVA)", "SWIM 1"])
+    assert line == (
+        "Houston is mission control; "
+        "Aldrin is the lunar module pilot, walking on the lunar surface."
+    )
 
 
 # -- retrieval ---------------------------------------------------------------
@@ -131,6 +139,17 @@ def test_answer_flags_invalid_citations(utterances, monkeypatch):
     monkeypatch.setattr(generate, "chat", lambda messages: "Landed [04:06:46:04], maybe [01:01:01:01].")
     result = generate.answer("q", _hits(utterances))
     assert (result.citations, result.invalid_citations) == (["04:06:46:04"], ["01:01:01:01"])
+
+
+def test_answer_without_a_verifiable_citation_is_unsupported(utterances, monkeypatch):
+    for reply in ("They landed safely.", "They landed [01:01:01:01].", ""):
+        monkeypatch.setattr(generate, "chat", lambda messages, reply=reply: reply)
+        assert generate.answer("q", _hits(utterances)).unsupported
+
+
+def test_answer_with_a_verified_citation_is_supported(utterances, monkeypatch):
+    monkeypatch.setattr(generate, "chat", lambda messages: "They landed [04:06:46:04].")
+    assert not generate.answer("q", _hits(utterances)).unsupported
 
 
 def test_answer_recognises_model_refusal(utterances, monkeypatch):

@@ -64,13 +64,12 @@ def evaluate_generation(retriever: Retriever, questions: list[dict], k: int = 5)
         hits = retriever.search(q["q"], k)
         result = generate.answer(q["q"], hits)
         if result.source == "retrieval-only":
-            raise generate.LLMUnavailable(result.text)
+            raise generate.LLMUnavailable(f"no language model reachable at {generate.BASE_URL}")
         rows.append(
             {
                 "q": q["q"],
                 "answerable": bool(q["gold"]),
                 "refused": result.refused,
-                "refused_by": result.source if result.refused else None,
                 "citations": result.citations,
                 "invalid_citations": result.invalid_citations,
                 "cites_gold": bool(set(result.citations) & set(q["gold"])),
@@ -90,8 +89,6 @@ def evaluate_generation(retriever: Retriever, questions: list[dict], k: int = 5)
         "answered_without_citation": sum(not r["citations"] for r in answered),
         "unanswerable": len(unanswerable),
         "correctly_refused": sum(r["refused"] for r in unanswerable),
-        "refused_by_floor": sum(r["refused_by"] == "floor" for r in unanswerable),
-        "wrongly_refused_by_floor": sum(r["refused_by"] == "floor" for r in answerable),
         "citations": cited,
         "invalid_citations": invalid,
         "rows": rows,

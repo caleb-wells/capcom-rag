@@ -18,13 +18,15 @@ from .corpus import Utterance
 
 # The transcript identifies speakers by role and call sign. People ask about
 # "Armstrong" and "the moonwalk", which appear nowhere in the text, so the
-# searchable copy of each line spells the label out. Index-time enrichment
-# like this is cheap, and measurably the biggest single win in this repo.
+# searchable copy of each chunk swaps in names and opens with one line of
+# context. The first version spelled the full description out on every line,
+# and the boilerplate drowned the terse dialogue; see the README.
+NAMES = {"CDR": "Armstrong", "CMP": "Collins", "LMP": "Aldrin", "CC": "Houston"}
 ROLES = {
-    "CDR": "Armstrong, commander",
-    "CMP": "Collins, command module pilot",
-    "LMP": "Aldrin, lunar module pilot",
-    "CC": "Houston, mission control",
+    "CDR": "Armstrong is the commander",
+    "CMP": "Collins is the command module pilot",
+    "LMP": "Aldrin is the lunar module pilot",
+    "CC": "Houston is mission control",
 }
 CALL_SIGNS = {
     "EAGLE": "aboard the lunar module Eagle",
@@ -34,13 +36,22 @@ CALL_SIGNS = {
 }
 
 
-def describe_speaker(label: str) -> str:
-    """'CDR (EVA)' -> 'Armstrong, commander, walking on the lunar surface'."""
-    role, _, call_sign = label.partition(" (")
-    parts = [ROLES.get(role, role)]
-    if call_sign.rstrip(")") in CALL_SIGNS:
-        parts.append(CALL_SIGNS[call_sign.rstrip(")")])
-    return ", ".join(parts)
+def speaker_name(label: str) -> str:
+    """'CDR (EVA)' -> 'Armstrong'. Unknown labels pass through."""
+    return NAMES.get(label.partition(" (")[0], label)
+
+
+def context_line(labels: list[str]) -> str:
+    """One sentence saying who is talking in this chunk, and from where."""
+    facts = []
+    for label in dict.fromkeys(labels):  # unique, in order of appearance
+        role, _, call_sign = label.partition(" (")
+        fact = ROLES.get(role)
+        if fact and call_sign.rstrip(")") in CALL_SIGNS:
+            fact += ", " + CALL_SIGNS[call_sign.rstrip(")")]
+        if fact and not any(f.startswith(fact) for f in facts):
+            facts = [f for f in facts if not fact.startswith(f)] + [fact]
+    return "; ".join(facts) + "." if facts else ""
 
 
 @dataclass(frozen=True)
@@ -93,7 +104,11 @@ def _count(utterance: Utterance) -> int:
 
 
 def _make_chunk(chunk_id: int, window: list[Utterance], enrich: bool) -> Chunk:
-    name = describe_speaker if enrich else str
+    if enrich:
+        lines = [context_line([u.speaker for u in window])]
+        lines += [f"{speaker_name(u.speaker)}: {u.text}" for u in window]
+    else:
+        lines = [f"{u.speaker}: {u.text}" for u in window]
     return Chunk(
         id=chunk_id,
         start=window[0].timestamp,
@@ -102,5 +117,5 @@ def _make_chunk(chunk_id: int, window: list[Utterance], enrich: bool) -> Chunk:
         end_seconds=window[-1].seconds,
         timestamps=tuple(u.timestamp for u in window),
         display="\n".join(f"[{u.timestamp}] {u.speaker}: {u.text}" for u in window),
-        search_text="\n".join(f"{name(u.speaker)}: {u.text}" for u in window),
+        search_text="\n".join(line for line in lines if line),
     )

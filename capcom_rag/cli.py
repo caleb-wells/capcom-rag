@@ -36,7 +36,9 @@ def cmd_ask(args: argparse.Namespace) -> None:
     hits = retriever.search(args.question, args.k, args.mode)
     result = generate.answer(args.question, hits)
 
-    print(f"\n{result.text}\n")
+    print(f"\n{result.text or '(The model returned an empty answer.)'}\n")
+    if result.unsupported:
+        print("WARNING: no citation in this answer could be verified. Treat it as unsupported.\n")
     if result.invalid_citations:
         print(f"WARNING: cited but not in the retrieved passages: {result.invalid_citations}\n")
     elif result.citations:

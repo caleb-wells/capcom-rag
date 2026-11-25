@@ -3,12 +3,16 @@
 The language model is the least trustworthy part of the pipeline, so it is
 fenced in on three sides:
 
-1. Before the call, a retrieval floor refuses questions the transcript has
-   nothing close to. No prompt can rescue an answer from irrelevant context.
-2. In the prompt, the model may use only the passages, must cite the
+1. In the prompt, the model may use only the passages, must cite the
    timestamp of each line it relies on, and has an explicit way to decline.
-3. After the call, code checks every cited timestamp against the passages the
+2. After the call, code checks every cited timestamp against the passages the
    model was actually given. A citation that fails the check is flagged.
+3. An answer with no verifiable citation at all is reported as unsupported.
+
+A fourth fence was planned and removed: refusing up front when the best
+passage's similarity fell below a floor. On this corpus the scores of
+unanswerable questions overlap those of answerable ones almost completely
+(see the README), so any floor either did nothing or refused good questions.
 
 Generation talks to any OpenAI-compatible chat endpoint (LM Studio, Ollama,
 llama.cpp, vLLM) using only the standard library. If no endpoint is
@@ -29,10 +33,6 @@ from .retrieve import Hit
 BASE_URL = os.environ.get("LLM_BASE_URL", "http://localhost:1234/v1")
 MODEL = os.environ.get("LLM_MODEL")  # default: the first chat model the server lists
 API_KEY = os.environ.get("LLM_API_KEY", "not-needed-for-local-servers")
-
-# Below this cosine similarity for the best passage, the question is treated
-# as out of scope. Tuned on the eval set; see the README for the trade-off.
-MIN_SIMILARITY = 0.55
 
 REFUSAL = "The transcript does not answer this."
 
@@ -62,8 +62,9 @@ _THINKING = re.compile(r"<think>.*?</think>", re.DOTALL)
 class Answer:
     text: str
     hits: list[Hit]
-    source: str  # "llm", "floor" (refused before the LLM), or "retrieval-only"
+    source: str  # "llm" or "retrieval-only" (no model was reachable)
     refused: bool = False
+    unsupported: bool = False  # answered, but with no citation that checks out
     citations: list[str] = field(default_factory=list)
     invalid_citations: list[str] = field(default_factory=list)
 
@@ -99,8 +100,6 @@ def check_citations(text: str, hits: list[Hit]) -> tuple[list[str], list[str]]:
 
 
 def answer(question: str, hits: list[Hit]) -> Answer:
-    if not hits or max(hit.similarity for hit in hits) < MIN_SIMILARITY:
-        return Answer(REFUSAL, hits, source="floor", refused=True)
     try:
         text = chat(build_messages(question, hits))
     except LLMUnavailable as error:
@@ -110,7 +109,10 @@ def answer(question: str, hits: list[Hit]) -> Answer:
     if REFUSAL.rstrip(".").lower() in text.lower():
         return Answer(REFUSAL, hits, source="llm", refused=True)
     valid, invalid = check_citations(text, hits)
-    return Answer(text, hits, source="llm", citations=valid, invalid_citations=invalid)
+    return Answer(
+        text, hits, source="llm", citations=valid, invalid_citations=invalid,
+        unsupported=not valid,  # also covers a model that returned nothing
+    )
 
 
 # -- the HTTP call -------------------------------------------------------------
